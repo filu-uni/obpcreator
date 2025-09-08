@@ -113,17 +113,17 @@ class Part(BaseModel):
     contour_order: int = 0 #0=contours before infill, 1=contours after  infill, 2=both before and after infill
 
 class StartHeat(BaseModel):
-    file: str = ""
+    file: str = "startHeat.obp"
     temp_sensor: str = "Sensor1"
     target_temperature: int = 800
     timeout:int = 3600
 
 class PreHeat(BaseModel):
-    file: str = ""
+    file: str = "preHeat.obp"
     repetitions: int = 10
 
 class PostHeat(BaseModel):
-    file: str = ""
+    file: str = "postHeat.obp"
     repetitions: int = 0
 
 class Layerfeed(BaseModel):

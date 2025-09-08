@@ -3,8 +3,39 @@ import obpcreator.scanning_strategies.infill_strategies as infill_strategies
 import obplib as obp
 import copy 
 import sys
+from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files  
+import obflib
 
-def generate_build(build, folder_path):    
+import subprocess
+
+def run_obftool(build_dir, output_file='converted.obf', name='Custom Build'):
+    obp_path = f"{build_dir}/obp"
+    script_path = f"{build_dir}/buildProcessors/lua/build.lua"
+
+    command = [
+        "obftool",
+        "convert",
+        obp_path,
+        output_file,
+        "--bob-script", f"example={script_path}",
+        "--name", name
+    ]
+
+    try:
+        subprocess.run(command, check=True)
+        print("✅ obftool ran successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ obftool failed with return code {e.returncode}")
+        print(f"Command: {' '.join(command)}")
+
+
+def generate_build(build, folder_path, obf_structure=True):    
+    if obf_structure :
+        folder_path = generate_obf_directories(folder_path)
+        old_folder_path = folder_path
+        generate_other_files(folder_path)
+        folder_path += "/obp/"
+        
     max_layers = get_max_layers(build)
     build_infill = []
     for part in build.parts:
@@ -19,9 +50,10 @@ def generate_build(build, folder_path):
         for ii in range(len(build.parts)):
             if build.parts[ii].point_geometry.keep_matrix.shape[2]>i:
                 layer_obp_elements.extend(generate_part_layer(build.parts[ii], build_infill[ii], i, back_scatter_melt=build.back_scatter_melting))
-        output_file = folder_path + f"\layer{i}.obp"
+        output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
-    generate_build_file(build, folder_path + r"\build_file.yml")
+    generate_build_file(build, folder_path + r"build_file.yml")
+    run_obftool(old_folder_path)
 
 def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=False):
     contour_order = contour_part.contour_order
@@ -34,7 +66,9 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
             contour_objects = generate_contour(contour_part, layer)
     if contour_order == 0 or contour_order == 2:
         obp_objects.extend(contour_objects)
+
     obp_objects.extend(generate_infill(infill_part, layer))
+
     if contour_order == 1 or contour_order == 2:
         obp_objects.extend(contour_objects)
     if back_scatter_melt:
@@ -63,7 +97,7 @@ def generate_build_file(build, path):
     lines_to_write.append(f"    files:")
     for i in range(nmb_of_layers):
         obp_files = []
-        obp_files.append(f"path_to_replace/layer{i}.obp")
+        obp_files.append(f"layer{i}.obp")
         if build.back_scatter.step != 0 and (i-build.back_scatter.start_layer)%build.back_scatter.step == 0:
             if build.back_scatter.after_melting:
                 obp_files.append(build.back_scatter.file)

@@ -1,5 +1,6 @@
 PACKAGE_NAME := obpcreator
 
+
 # Default target
 all: reinstall
 
@@ -15,6 +16,5 @@ build: clean
 reinstall: build
 	pip uninstall -y $(PACKAGE_NAME) || true
 	pip install dist/*.whl
-
-.PHONY: all clean build reinstall
+.PHONY: all clean build reinstall 
 

@@ -1,0 +1,19 @@
+{
+  "formatVersion": "3.0",
+  "project": {
+    "id": "3b1de085-eb2d-4c7d-9525-6a0a846d49fd",
+    "name": "obf3.0",
+    "description": "",
+    "revision": {
+      "number": 1,
+      "note": ""
+    }
+  },
+  "author": {
+    "email": ""
+  },
+  "reference": {
+    "name": "",
+    "uri": "https://gitlab.com/freemelt/openmelt/obflib-python"
+  }
+}

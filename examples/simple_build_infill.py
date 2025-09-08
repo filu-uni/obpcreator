@@ -1,5 +1,6 @@
 from obpcreator.simple_input import SimpleBuild
 import pyvista as pv
+import os
 
 cube1 = pv.Cube(center=(15,-15,5),x_length=10,y_length=10,z_length=10)
 cube2 = pv.Cube(center=(15,0,5),x_length=10,y_length=10,z_length=10)
@@ -23,4 +24,4 @@ build = SimpleBuild(
     layer_height = 0.1,
     rotation_angle = [0],
     )
-build.prepare_build(r"C:\Users\antwi87\Downloads\slicertest5")
+build.prepare_build(os.getcwd())

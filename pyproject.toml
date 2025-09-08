@@ -19,6 +19,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
+
 dependencies = [
     "svgpathtools",
     "numpy",
@@ -33,3 +34,11 @@ dependencies = [
     "logbook",
 ]
 requires-python = ">=3.7"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+# Adjust this to match your actual package structure
+"obpcreator.obf.helpers" = ["*.json", "*.lua", "*.py","*.obp"]
+
