@@ -62,7 +62,7 @@ class SimpleBuild(BaseModel):
                 scan_strategy = self.infill_strategy[i],
                 strategy_settings = self.infill_settings[i]
                 )
-            if len(self.contour_strategy) > 0:
+            if self.contour_strategy != "No contour" :
                 contour_setting = data_model.ScanParameters(
                     spot_size = self.contour_spot_size[i], #[-] 1-100
                     beam_power = self.contour_beam_power[i], #[W]

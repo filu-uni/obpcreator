@@ -5,10 +5,12 @@ import copy
 import sys
 from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files  
 import obflib
-
+from os import path
 import subprocess
 
-def run_obftool(build_dir, output_file='converted.obf', name='Custom Build'):
+def run_obftool(build_dir, name='Custom_Build'):
+    output_dir = path.dirname(build_dir)
+    output_file = path.join(output_dir,name + ".obf")
     obp_path = f"{build_dir}/obp"
     script_path = f"{build_dir}/buildProcessors/lua/build.lua"
 
@@ -53,6 +55,7 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
+    #TODO insert heat files from build
     run_obftool(old_folder_path)
 
 def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=False):
