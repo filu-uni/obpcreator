@@ -18,14 +18,20 @@ class SimpleBuild(BaseModel):
 
     start_angle: List[float] = [0] #[deg]
     rotation_angle: List[float] = [0] #[deg]
-    bse_step: int = 0
-    bse_melt: bool = False
     contour_strategy: List[str] = []
     contour_settings: List[dict] = []
     contour_spot_size: List[int] = [] #[-] 1-100
     contour_beam_power: List[int] = [] #[W]
     contour_scan_speed: List[int] = [] #[micrometers/second]
     contour_dwell_time: List[int] = [] #[ns]
+
+    layerfeed: dict = {} 
+
+    bse: dict = {}
+    bse_melt: bool = False
+    start_heat: dict = {}
+    pre_heat: dict = {}
+    post_heat: dict = {}
 
     def prepare_build(self, out_path, gui=True):
         if gui:
@@ -62,7 +68,7 @@ class SimpleBuild(BaseModel):
                 scan_strategy = self.infill_strategy[i],
                 strategy_settings = self.infill_settings[i]
                 )
-            if self.contour_strategy != "No contour" :
+            if self.contour_strategy != "No contour" and len(self.contour_strategy) > 0 :
                 contour_setting = data_model.ScanParameters(
                     spot_size = self.contour_spot_size[i], #[-] 1-100
                     beam_power = self.contour_beam_power[i], #[W]
@@ -88,14 +94,63 @@ class SimpleBuild(BaseModel):
                     infill_setting = infill,
                 )
             parts.append(part1)
-        bse = data_model.BackScatter(
-            file="BSE_Scan_PT.obp",
-            step = self.bse_step
-        )
+        
+        if not self.bse:
+            bse = data_model.BackScatter()
+        else:
+            bse = data_model.BackScatter(
+                file= self.bse["file"],
+                content= self.bse["content"],
+                start_layer = self.bse["start_layer"],
+                step = self.bse["step"],
+                after_melting = self.bse["after_melting"],
+            )
+        if not self.start_heat:
+            start_heat = data_model.StartHeat()
+        else:
+            start_heat = data_model.StartHeat(
+                    file = self.start_heat["file"],
+                    content = self.start_heat["content"],
+                    temp_sensor = self.start_heat["temp_sensor"],
+                    target_temperature = self.start_heat["target_temperature"],
+                    timeout = self.start_heat["timeout"]
+                    )
+        if not self.pre_heat:
+            pre_heat = data_model.PreHeat()
+        else:
+            pre_heat = data_model.PreHeat(
+                    file = self.pre_heat["file"],
+                    content = self.pre_heat["content"],
+                    repetitions = self.pre_heat["repetitions"])
+        if not self.post_heat:
+            post_heat = data_model.PostHeat()
+        else:
+            post_heat = data_model.PostHeat(
+                    file = self.post_heat["file"],
+                    content = self.post_heat["content"],
+                    repetitions = self.post_heat["repetitions"])
+        if not self.layerfeed:
+            layerfeed = data_model.Layerfeed()
+        else:
+            layerfeed = data_model.Layerfeed(
+                build_piston_distance=self.layerfeed["build_piston_distance"],
+                powder_piston_distance=self.layerfeed["powder_piston_distance"],
+                recoater_advance_speed=self.layerfeed["recoater_advance_speed"],
+                recoater_retract_speed=self.layerfeed["recoater_retract_speed"],
+                recoater_dwell_time=self.layerfeed["recoater_dwell_time"],
+                recoater_full_repeats=self.layerfeed["recoater_full_repeats"],
+                recoater_build_repeats=self.layerfeed["recoater_build_repeats"],
+                triggered_start=self.layerfeed["triggered_start"]
+            )
+
         build = data_model.Build(
             parts = parts,
             layer_height = self.layer_height, #mm
-            back_scatter=bse,
+            start_heat = start_heat,
+            pre_heat = pre_heat,
+            post_heat = post_heat,
+            layerfeed = layerfeed,
+            back_scatter = bse,
             back_scatter_melting = self.bse_melt
         )
         generate_build.generate_build(build, out_path)

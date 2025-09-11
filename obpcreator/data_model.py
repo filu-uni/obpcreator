@@ -114,16 +114,19 @@ class Part(BaseModel):
 
 class StartHeat(BaseModel):
     file: str = "startHeat.obp"
+    content: bytes = None
     temp_sensor: str = "Sensor1"
     target_temperature: int = 800
     timeout:int = 3600
 
 class PreHeat(BaseModel):
     file: str = "preHeat.obp"
+    content: bytes = None
     repetitions: int = 10
 
 class PostHeat(BaseModel):
     file: str = "postHeat.obp"
+    content: bytes = None
     repetitions: int = 0
 
 class Layerfeed(BaseModel):
@@ -137,7 +140,8 @@ class Layerfeed(BaseModel):
     triggered_start: bool = True
 
 class BackScatter(BaseModel):
-    file: str = "" #Which obp file that contains tha backscatter scan
+    file: str = "BSE_Scan_PT.obp"#Which obp file that contains tha backscatter scan
+    content: bytes = None
     start_layer: int = 0 #At which layer the backscatter should be applied
     step: int = 0 #At which nth layer it should be run, if 0 not run at all
     after_melting: bool = True #If true the backscatter will be run after after the melting obp, otherwise before the melting

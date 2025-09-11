@@ -5,12 +5,13 @@ import copy
 import sys
 from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files  
 import obflib
-from os import path
+import os
+from pathlib import Path
 import subprocess
 
 def run_obftool(build_dir, name='Custom_Build'):
-    output_dir = path.dirname(build_dir)
-    output_file = path.join(output_dir,name + ".obf")
+    output_dir = os.path.dirname(build_dir)
+    output_file = os.path.join(output_dir,name + ".obf")
     obp_path = f"{build_dir}/obp"
     script_path = f"{build_dir}/buildProcessors/lua/build.lua"
 
@@ -34,7 +35,7 @@ def run_obftool(build_dir, name='Custom_Build'):
 def generate_build(build, folder_path, obf_structure=True):    
     if obf_structure :
         folder_path = generate_obf_directories(folder_path)
-        old_folder_path = folder_path
+        old_folder_path = Path(folder_path)
         generate_other_files(folder_path)
         folder_path += "/obp/"
         
@@ -55,8 +56,16 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
-    #TODO insert heat files from build
-    run_obftool(old_folder_path)
+    for file,name in [(build.start_heat.content,build.start_heat.file),
+                      (build.pre_heat.content,build.pre_heat.file),
+                      (build.post_heat.content,build.post_heat.file),
+                      (build.back_scatter.content,build.back_scatter.file)] :
+        if file is not None:
+            save_file = os.path.join(folder_path,name)
+            with open(save_file, "wb") as f:
+                f.write(file)
+    if obf_structure:
+        run_obftool(old_folder_path,name=old_folder_path.name)
 
 def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=False):
     contour_order = contour_part.contour_order
