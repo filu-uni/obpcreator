@@ -28,9 +28,9 @@ def generate_other_files(base_folder):
         "dependencies.json": "dependencies.json",
         "manifest.json": "manifest.json",
         "build.lua": os.path.join("buildProcessors", "lua", "build.lua"),
-        "startHeat.obp": os.path.join("obp", "startHeat.obp"),
-        "preHeat.obp": os.path.join("obp", "preHeat.obp"),
-        "postHeat.obp": os.path.join("obp", "postHeat.obp"),
+        "start_heat.obp": os.path.join("obp", "start_heat.obp"),
+        "pre_heat.obp": os.path.join("obp", "pre_heat.obp"),
+        "post_heat.obp": os.path.join("obp", "post_heat.obp"),
         "obpviewer.py": os.path.join("obp", "obpviewer.py"),
     }
 

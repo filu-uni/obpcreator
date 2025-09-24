@@ -34,7 +34,7 @@ def run_obftool(build_dir, name='Custom_Build'):
 
 def generate_build(build, folder_path, obf_structure=True):    
     if obf_structure :
-        folder_path = generate_obf_directories(folder_path)
+        folder_path = generate_obf_directories(folder_path,build.build_name)
         old_folder_path = Path(folder_path)
         generate_other_files(folder_path)
         folder_path += "/obp/"
@@ -56,16 +56,16 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
-    for file,name in [(build.start_heat.content,build.start_heat.file),
-                      (build.pre_heat.content,build.pre_heat.file),
-                      (build.post_heat.content,build.post_heat.file),
-                      (build.back_scatter.content,build.back_scatter.file)] :
+    for file,name in [(build.start_heat.content,"start_heat.obp"),
+                      (build.pre_heat.content,"pre_heat.obp"),
+                      (build.post_heat.content,"post_heat.obp"),
+                      (build.back_scatter.content,"back_scatter.obp")] :
         if file is not None:
             save_file = os.path.join(folder_path,name)
             with open(save_file, "wb") as f:
                 f.write(file)
     if obf_structure:
-        run_obftool(old_folder_path,name=old_folder_path.name)
+        run_obftool(old_folder_path,name=build.build_name)
 
 def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=False):
     contour_order = contour_part.contour_order
@@ -138,7 +138,7 @@ def generate_build_file(build, path):
     f.close()
 
 def generate_contour(part, layer):
-    if part.contour_setting.scan_strategy == "":
+    if part.contour_setting.scan_strategy == "" or part.contour_setting.scan_strategy == "No contour":
         return []
     strategy_func = getattr(contour_strategies, part.contour_setting.scan_strategy, None)
     if strategy_func:

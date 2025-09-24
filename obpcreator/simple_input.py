@@ -32,6 +32,7 @@ class SimpleBuild(BaseModel):
     start_heat: dict = {}
     pre_heat: dict = {}
     post_heat: dict = {}
+    build_name: str = ""
 
     def prepare_build(self, out_path, gui=True):
         if gui:
@@ -151,7 +152,8 @@ class SimpleBuild(BaseModel):
             post_heat = post_heat,
             layerfeed = layerfeed,
             back_scatter = bse,
-            back_scatter_melting = self.bse_melt
+            back_scatter_melting = self.bse_melt,
+            build_name = self.build_name
         )
         generate_build.generate_build(build, out_path)
    

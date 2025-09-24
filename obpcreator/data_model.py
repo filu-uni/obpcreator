@@ -113,19 +113,19 @@ class Part(BaseModel):
     contour_order: int = 0 #0=contours before infill, 1=contours after  infill, 2=both before and after infill
 
 class StartHeat(BaseModel):
-    file: str = "startHeat.obp"
+    file: str = "start_heat.obp"
     content: bytes = None
     temp_sensor: str = "Sensor1"
     target_temperature: int = 800
     timeout:int = 3600
 
 class PreHeat(BaseModel):
-    file: str = "preHeat.obp"
+    file: str = "pre_heat.obp"
     content: bytes = None
     repetitions: int = 10
 
 class PostHeat(BaseModel):
-    file: str = "postHeat.obp"
+    file: str = "post_heat.obp"
     content: bytes = None
     repetitions: int = 0
 
@@ -156,5 +156,6 @@ class Build(BaseModel):
     back_scatter: BackScatter = BackScatter()
     back_scatter_melting: bool = False
     seperate_parts_obp: bool = False
+    build_name: str = ""
 
 
