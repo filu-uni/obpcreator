@@ -4,6 +4,7 @@ import obplib as obp
 import copy 
 import sys
 from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files  
+from obpcreator.obf.cli import convert
 import obflib
 import os
 from pathlib import Path
@@ -19,9 +20,7 @@ def run_obftool(build_dir, name='Custom_Build'):
         "obftool",
         "convert",
         obp_path,
-        output_file,
-        "--bob-script", f"example={script_path}",
-        "--name", name
+#       "--output-dir"=output_file,
     ]
 
     try:
@@ -56,16 +55,19 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
-    for file,name in [(build.start_heat.content,"start_heat.obp"),
-                      (build.pre_heat.content,"pre_heat.obp"),
-                      (build.post_heat.content,"post_heat.obp"),
-                      (build.back_scatter.content,"back_scatter.obp")] :
+    for file,name in [(build.start_heat.content,build.start_heat.file),
+                      (build.pre_heat.content,build.pre_heat.file),
+                      (build.post_heat.content,build.post_heat.file),
+                      (build.back_scatter.content,build.back_scatter.file)] :
         if file is not None:
             save_file = os.path.join(folder_path,name)
             with open(save_file, "wb") as f:
                 f.write(file)
     if obf_structure:
-        run_obftool(old_folder_path,name=build.build_name)
+        output_dir = os.path.dirname(old_folder_path)
+        output_file = os.path.join(output_dir,build.build_name + ".obf")
+        obp_path = f"{old_folder_path}/obp"
+        convert(input_dir=obp_path, output_obf=output_file,name=build.build_name)
 
 def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=False):
     contour_order = contour_part.contour_order

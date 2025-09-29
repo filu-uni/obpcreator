@@ -28,10 +28,6 @@ def generate_other_files(base_folder):
         "dependencies.json": "dependencies.json",
         "manifest.json": "manifest.json",
         "build.lua": os.path.join("buildProcessors", "lua", "build.lua"),
-        "start_heat.obp": os.path.join("obp", "start_heat.obp"),
-        "pre_heat.obp": os.path.join("obp", "pre_heat.obp"),
-        "post_heat.obp": os.path.join("obp", "post_heat.obp"),
-        "obpviewer.py": os.path.join("obp", "obpviewer.py"),
     }
 
     for src_filename, relative_dest in file_map.items():
