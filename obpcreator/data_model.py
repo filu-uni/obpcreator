@@ -5,6 +5,7 @@ from scipy.ndimage import binary_dilation, binary_erosion
 import cv2
 import math
 from shapely.geometry import Polygon
+from typing import List
 
 
 class ScanParameters(BaseModel):
@@ -139,6 +140,14 @@ class Layerfeed(BaseModel):
     recoater_build_repeats: int = 0
     triggered_start: bool = True
 
+class BeforeLayer(BaseModel):
+    files: List[str] = list()
+    content: List[bytes] = list()
+
+class AfterLayer(BaseModel):
+    files: List[str] = list()
+    content: List[bytes] = list()
+
 class BackScatter(BaseModel):
     file: str = "BSE_Scan_PT.obp"#Which obp file that contains tha backscatter scan
     content: bytes = None
@@ -157,5 +166,6 @@ class Build(BaseModel):
     back_scatter_melting: bool = False
     seperate_parts_obp: bool = False
     build_name: str = ""
-
+    before_layer: BeforeLayer = BeforeLayer()
+    after_layer: AfterLayer = AfterLayer()
 

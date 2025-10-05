@@ -32,6 +32,10 @@ class SimpleBuild(BaseModel):
     start_heat: dict = {}
     pre_heat: dict = {}
     post_heat: dict = {}
+    before_layer_names: List[str] = list()
+    before_layer_content: List[bytes] = list()
+    after_layer_names: List[str] = list()
+    after_layer_content: List[bytes] = list()
     build_name: str = ""
 
     def prepare_build(self, out_path, gui=True):
@@ -143,6 +147,20 @@ class SimpleBuild(BaseModel):
                 recoater_build_repeats=self.layerfeed["recoater_build_repeats"],
                 triggered_start=self.layerfeed["triggered_start"]
             )
+        if not self.after_layer_names:
+            after_layer = data_model.AfterLayer()
+        else:
+            after_layer = data_model.AfterLayer(
+                    files = self.after_layer_names,
+                    content = self.after_layer_content
+                    )
+        if not self.before_layer_names:
+            before_layer = data_model.BeforeLayer()
+        else:
+            before_layer = data_model.BeforeLayer(
+                    files = self.before_layer_names,
+                    content = self.before_layer_content
+                    )
 
         build = data_model.Build(
             parts = parts,
@@ -153,6 +171,8 @@ class SimpleBuild(BaseModel):
             layerfeed = layerfeed,
             back_scatter = bse,
             back_scatter_melting = self.bse_melt,
+            before_layer = before_layer,
+            after_layer = after_layer,
             build_name = self.build_name
         )
         generate_build.generate_build(build, out_path)
