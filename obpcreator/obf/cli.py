@@ -1,4 +1,5 @@
-
+#This file is taken from the deployed machines of freemelt but doesnt come with a licence.
+#therefore this file is just here until freemelt publishes the v3 obftool on gitlab.
 """Command-line tool to convert BOSS files to OBF."""
 
 # Built-in
