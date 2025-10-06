@@ -6,10 +6,11 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "obpcreator"
+name = "obpcreator_uni_wuppertal"
 version = "0.0.2"
 authors = [
     { name = "Anton Wiberg", email = "wiberg.anton@gmail.com" }
+	{name = "Finn Lütjens", email = "finn.luetjens@uni-wuppertal.de"}
 ]
 description = "Generation of open beam path files based on different strategies"
 readme = "README.md"
