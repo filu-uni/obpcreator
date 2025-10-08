@@ -20,7 +20,7 @@ class SlicingSettings(BaseModel):
     hatch_distance: float = math.sqrt(3/4)*0.1  #mm
     start_angle: float = 0 #deg 
     rotation_angle: float = 0 #deg 
-    uniform_point_dist: bool = True
+    uniform_point_dist: bool = False 
     offset_margin: float = 1 #mm
 
     def __init__(self, **data):

@@ -10,26 +10,6 @@ import os
 from pathlib import Path
 import subprocess
 
-def run_obftool(build_dir, name='Custom_Build'):
-    output_dir = os.path.dirname(build_dir)
-    output_file = os.path.join(output_dir,name + ".obf")
-    obp_path = f"{build_dir}/obp"
-    script_path = f"{build_dir}/buildProcessors/lua/build.lua"
-
-    command = [
-        "obftool",
-        "convert",
-        obp_path,
-#       "--output-dir"=output_file,
-    ]
-
-    try:
-        subprocess.run(command, check=True)
-        print("✅ obftool ran successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"❌ obftool failed with return code {e.returncode}")
-        print(f"Command: {' '.join(command)}")
-
 
 def generate_build(build, folder_path, obf_structure=True):    
     if obf_structure :

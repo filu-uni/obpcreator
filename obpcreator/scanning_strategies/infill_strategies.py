@@ -25,7 +25,7 @@ def snake_sort(t):
 
 def right_sort(t):
     return (t[0], -t[1])
-    
+
 def line_snake(part, layer):
     scan_strategy_settings = part.infill_setting.strategy_settings
     short_as_point = False

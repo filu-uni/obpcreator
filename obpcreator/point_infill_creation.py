@@ -31,7 +31,7 @@ def rotate_point(x, y, theta, center_x, center_y):
     y_new = sin_theta * (x - center_x) + cos_theta * (y - center_y) + center_y
     return x_new, y_new
 
-def generate_matrices(min_x, max_x, min_y, max_y, max_z, xy_spacing, z_spacing, start_angle=0, rotation_angle=0, uniform_point_dist=True, offset_margin=1):
+def generate_matrices(min_x, max_x, min_y, max_y, max_z, xy_spacing, z_spacing, start_angle=0, rotation_angle=0, uniform_point_dist=False, offset_margin=1):
     center = [(max_x+min_x)/2, (max_y+min_y)/2]
     longest_side = max(abs(max_x-min_x),abs(max_y-min_y))/2+2*offset_margin
     min_x = center[0]-math.sqrt(2)*longest_side
@@ -39,15 +39,15 @@ def generate_matrices(min_x, max_x, min_y, max_y, max_z, xy_spacing, z_spacing, 
     min_y = center[1]-math.sqrt(2)*longest_side
     max_y = center[1]+math.sqrt(2)*longest_side
     spacing_x = xy_spacing
-    spacing_y = math.sqrt(3/4)*xy_spacing
+    spacing_y = xy_spacing
     points_x = math.ceil((max_x-min_x)/spacing_x)
     points_y = math.ceil((max_y-min_y)/spacing_y)
     max_x = min_x + points_x*spacing_x
     max_y = min_y + points_y*spacing_y
     max_z = max_z - z_spacing/2
     # Generate arrays of x and y coordinates based on given parameters
-    x_coords = np.arange(min_x, max_x, spacing_x)
-    y_coords = np.arange(min_y, max_y, spacing_y)
+    x_coords = np.arange(min_x, max_x + spacing_x, spacing_x)
+    y_coords = np.arange(min_y, max_y + spacing_y, spacing_y)
     z_coords = np.arange(z_spacing/2, max_z, z_spacing)
     # Using np.meshgrid to create 3D grids for X, Y, and Z
     X_grid, Y_grid, Z_grid = np.meshgrid(x_coords, y_coords, z_coords, indexing='ij')
