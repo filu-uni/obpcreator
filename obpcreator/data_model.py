@@ -1,5 +1,6 @@
 from typing import Any, List, Dict, Optional
 from pydantic import BaseModel
+import numpy as np
 from numpy import copy
 from scipy.ndimage import binary_dilation, binary_erosion
 import cv2
@@ -43,27 +44,33 @@ class PointGeometry(BaseModel):
         y_coords = self.coord_matrix[:, :, layer, 1]
         coords = x_coords + 1j * y_coords
         return coords, self.keep_matrix[:,:,layer] 
-    def get_contours(self, layer):
-        matrix = self.keep_matrix[:,:,layer]
-        coords = self.coord_matrix[:,:,layer,:]
+    def get_contours(self, layer, epsilon_factor=0.001):
+        matrix = self.keep_matrix[:, :, layer]
+        coords = self.coord_matrix[:, :, layer, :]
+
+        height, width = matrix.shape  # Important to bound indices
+
         contours, _ = cv2.findContours(matrix, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         simplified_contours = []
-        epsilon_factor = (self.coord_matrix[1,0,0,0] - self.coord_matrix[0,0,0,0])*1.0 #Simplification factor
+
         for cnt in contours:
             epsilon = epsilon_factor * cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, epsilon, True)
-            # Initialize an empty list to hold the mapped real-world coordinates for this contour
+
             real_world_contour_points = []
             for point in approx.reshape(-1, 2):
-                # Map the pixel positions to real-world coordinates
-                # Ensure to convert point indices to integers, as they will be used as indices
                 x_pixel, y_pixel = point.astype(int)
+
+                # Clip indices to avoid out-of-bounds errors
+                y_pixel = np.clip(y_pixel, 0, height - 1)
+                x_pixel = np.clip(x_pixel, 0, width - 1)
+
                 real_world_x, real_world_y = coords[y_pixel, x_pixel, 0], coords[y_pixel, x_pixel, 1]
                 real_world_contour_points.append((real_world_x, real_world_y))
-            
-            # Create a Shapely Polygon with the real-world coordinates
+
             polygon = Polygon(real_world_contour_points)
             simplified_contours.append(polygon)
+
         return simplified_contours
     def offset_contours(self, offset_distance):
         point_distance = self.get_point_distance()
