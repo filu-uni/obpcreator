@@ -1,4 +1,46 @@
 import obplib as obp
+from obpcreator.scanning_strategies.fitCurves import fitCurve
+import numpy as np
+
+def line_bezier(part, layer):
+    scan_settings = part.contour_setting.beam_settings
+    bp = obp.Beamparameters(scan_settings.spot_size, scan_settings.beam_power)
+    contours = part.point_geometry.get_contours(layer)
+    obp_elements = []
+
+    for contour in contours:
+        line = contour.buffer(-part.contour_setting.outer_offset)
+
+        for _ in range(part.contour_setting.numb_of_layers):
+            x, y = line.exterior.xy
+            points = list(zip(x, y))
+
+            # Remove duplicate endpoint if closed (start == end)
+            if points[0] == points[-1]:
+                points = points[:-1]
+            points = [np.array(p) for p in points]
+
+            # Fit Bezier curves to the points with a chosen error tolerance
+            bezier_segments = fitCurve(points, maxError=1.0)  # Adjust maxError as needed
+
+            for segment in bezier_segments:
+                # Each segment has 4 control points: [P0, P1, P2, P3]
+                p0, p1, p2, p3 = segment
+
+                # Convert to µm (scale by 1000)
+                p0 = obp.Point(p0[0] * 1000, p0[1] * 1000)
+                p1 = obp.Point(p1[0] * 1000, p1[1] * 1000)
+                p2 = obp.Point(p2[0] * 1000, p2[1] * 1000)
+                p3 = obp.Point(p3[0] * 1000, p3[1] * 1000)
+
+                # Create obp.Arc instead of obp.Line
+                obp_elements.append(obp.Curve(p0, p1, p2, p3, scan_settings.scan_speed, bp))
+
+            # Apply additional inward offset for next contour layer
+            line = line.buffer(-part.contour_setting.contour_offset)
+
+    return obp_elements
+
 
 def line_simple(part, layer):
     scan_settings = part.contour_setting.beam_settings
