@@ -32,10 +32,6 @@ class SimpleBuild(BaseModel):
     start_heat: dict = {}
     pre_heat: dict = {}
     post_heat: dict = {}
-    before_layer_names: List[str] = list()
-    before_layer_content: List[bytes] = list()
-    after_layer_names: List[str] = list()
-    after_layer_content: List[bytes] = list()
     build_name: str = ""
 
     def prepare_build(self, out_path, gui=True):
@@ -114,8 +110,7 @@ class SimpleBuild(BaseModel):
             start_heat = data_model.StartHeat()
         else:
             start_heat = data_model.StartHeat(
-                    file = self.start_heat["file"],
-                    content = self.start_heat["content"],
+                    file = self.start_heat["file"]
                     temp_sensor = self.start_heat["temp_sensor"],
                     target_temperature = self.start_heat["target_temperature"],
                     timeout = self.start_heat["timeout"]
@@ -124,15 +119,15 @@ class SimpleBuild(BaseModel):
             pre_heat = data_model.PreHeat()
         else:
             pre_heat = data_model.PreHeat(
-                    file = self.pre_heat["file"],
-                    content = self.pre_heat["content"],
+                    file = self.start_heat["file"]
+                    beam_power = self.pre_heat["beam_power"]
                     repetitions = self.pre_heat["repetitions"])
         if not self.post_heat:
             post_heat = data_model.PostHeat()
         else:
             post_heat = data_model.PostHeat(
-                    file = self.post_heat["file"],
-                    content = self.post_heat["content"],
+                    file = self.start_heat["file"]
+                    beam_power = self.post_heat["beam_power"]
                     repetitions = self.post_heat["repetitions"])
         if not self.layerfeed:
             layerfeed = data_model.Layerfeed()
@@ -147,20 +142,6 @@ class SimpleBuild(BaseModel):
                 recoater_build_repeats=self.layerfeed["recoater_build_repeats"],
                 triggered_start=self.layerfeed["triggered_start"]
             )
-        if not self.after_layer_names:
-            after_layer = data_model.AfterLayer()
-        else:
-            after_layer = data_model.AfterLayer(
-                    files = self.after_layer_names,
-                    content = self.after_layer_content
-                    )
-        if not self.before_layer_names:
-            before_layer = data_model.BeforeLayer()
-        else:
-            before_layer = data_model.BeforeLayer(
-                    files = self.before_layer_names,
-                    content = self.before_layer_content
-                    )
 
         build = data_model.Build(
             parts = parts,
@@ -171,8 +152,6 @@ class SimpleBuild(BaseModel):
             layerfeed = layerfeed,
             back_scatter = bse,
             back_scatter_melting = self.bse_melt,
-            before_layer = before_layer,
-            after_layer = after_layer,
             build_name = self.build_name
         )
         generate_build.generate_build(build, out_path)

@@ -3,13 +3,20 @@ import obpcreator.scanning_strategies.infill_strategies as infill_strategies
 import obplib as obp
 import copy 
 import sys
-from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files  
+from obpcreator.obf.generate_obf import generate_obf_directories, generate_other_files
+from obpcreator import data_model as data
 from obpcreator.obf.cli import convert
 import obflib
 import os
 from pathlib import Path
 import subprocess
 
+
+def generatHeatFile(name,power,folder_path):
+    save_file = os.path.join(folder_path,name)
+        with open(save_file, "wb") as f:
+            f.write(file)
+    pass
 
 def generate_build(build, folder_path, obf_structure=True):    
     if obf_structure :
@@ -22,8 +29,11 @@ def generate_build(build, folder_path, obf_structure=True):
     build_infill = []
     for part in build.parts:
         point_geometry = part.point_geometry.offset_contours(part.infill_setting.infill_offset)
-        copied_part = copy.deepcopy(part)
-        copied_part.point_geometry = point_geometry
+        copied_part = data.Part(
+                point_geometry = point_geometry,
+                infill_setting = part.infill_setting,
+                contour_setting = part.contour_setting
+                )
         build_infill.append(copied_part)
     for i in range(max_layers):
         sys.stdout.write(f'\rPath planning layer {i+1}/{max_layers}')  # Print the message
@@ -35,27 +45,10 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
-    for file,name in [(build.start_heat.content,build.start_heat.file),
-                      (build.pre_heat.content,build.pre_heat.file),
-                      (build.post_heat.content,build.post_heat.file)]:
-        if file is not None:
-            save_file = os.path.join(folder_path,name)
-            with open(save_file, "wb") as f:
-                f.write(file)
-    before_layer_list = list(zip(build.before_layer.content,build.before_layer.files))
-    before_layer_list.reverse()
-    for file,name in before_layer_list:
-        if file is not None:
-            save_file = os.path.join(folder_path,name)
-            with open(save_file, "wb") as f:
-                f.write(file)
-    after_layer_list =list(zip(build.after_layer.content,build.after_layer.files))
-    after_layer_list.reverse()
-    for file,name in after_layer_list:
-        if file is not None:
-            save_file = os.path.join(folder_path,name)
-            with open(save_file, "wb") as f:
-                f.write(file)
+    for power,name in [(build.start_heat.beam_power,r"start_heat.obp"),
+                      (build.pre_heat.beam_power,r"pre_heat.obp"),
+                      (build.post_heat.beam_power,r"post_heat.obp")]:
+        generatHeatFile(name,power,folder_path)   
 
     if obf_structure:
         output_dir = os.path.dirname(old_folder_path)
@@ -76,13 +69,14 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
         obp_objects.extend(contour_objects)
 
     obp_objects.extend(generate_infill(infill_part, layer))
-
     if contour_order == 1 or contour_order == 2:
         obp_objects.extend(contour_objects)
     if back_scatter_melt:
         obp_objects.insert(0, obp.SyncPoint("BseImage", True, 0))
         obp_objects.insert(0, obp.SyncPoint("BSEGain", True, 0))
         obp_objects.append(obp.SyncPoint("BseImage", False, 0))
+    
+    obp_objects.insert(0,obp.SyncPoint("ExternalSync",False,0)
     return obp_objects
 
 def generate_build_file(build, path):
@@ -105,13 +99,13 @@ def generate_build_file(build, path):
     lines_to_write.append(f"    files:")
     for i in range(nmb_of_layers):
         obp_files = []
-        if build.before_layer.files:
-            for file in build.before_layer.files:
-                obp_files.append(file)
+        #if build.before_layer.files:
+        #    for file in build.before_layer.files:
+        #        obp_files.append(file)
         obp_files.append(f"layer{i}.obp")
-        if build.after_layer.files:
-            for file in build.after_layer.files:
-                obp_files.append(file)
+        #if build.after_layer.files:
+        #    for file in build.after_layer.files:
+        #        obp_files.append(file)
         #if build.back_scatter.step != 0 and (i-build.back_scatter.start_layer)%build.back_scatter.step == 0:
         #    if build.back_scatter.after_melting:
         #        obp_files.append(build.back_scatter.file)

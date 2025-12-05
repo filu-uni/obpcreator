@@ -121,20 +121,16 @@ class Part(BaseModel):
     contour_order: int = 0 #0=contours before infill, 1=contours after  infill, 2=both before and after infill
 
 class StartHeat(BaseModel):
-    file: str = "start_heat.obp"
-    content: bytes = None
     temp_sensor: str = "Sensor1"
     target_temperature: int = 800
     timeout:int = 3600
 
 class PreHeat(BaseModel):
-    file: str = "pre_heat.obp"
-    content: bytes = None
+    beam_power: int = 1500
     repetitions: int = 10
 
 class PostHeat(BaseModel):
-    file: str = "post_heat.obp"
-    content: bytes = None
+    beam_power: int = 0
     repetitions: int = 0
 
 class Layerfeed(BaseModel):
@@ -147,13 +143,6 @@ class Layerfeed(BaseModel):
     recoater_build_repeats: int = 0
     triggered_start: bool = True
 
-class BeforeLayer(BaseModel):
-    files: List[str] = list()
-    content: List[bytes] = list()
-
-class AfterLayer(BaseModel):
-    files: List[str] = list()
-    content: List[bytes] = list()
 
 class BackScatter(BaseModel):
     file: str = "BSE_Scan_PT.obp"#Which obp file that contains tha backscatter scan
@@ -173,6 +162,4 @@ class Build(BaseModel):
     back_scatter_melting: bool = False
     seperate_parts_obp: bool = False
     build_name: str = ""
-    before_layer: BeforeLayer = BeforeLayer()
-    after_layer: AfterLayer = AfterLayer()
 
