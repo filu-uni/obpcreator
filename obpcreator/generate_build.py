@@ -77,7 +77,7 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
 
     obp_objects.extend(generate_infill(infill_part, layer))
     #Generate contours
-    if contour_order == 1 or:
+    if contour_order == 1:
         obp_objects.extend(contour_objects)
 
     if back_scatter_melt:
