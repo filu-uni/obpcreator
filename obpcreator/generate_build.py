@@ -10,13 +10,8 @@ import obflib
 import os
 from pathlib import Path
 import subprocess
+from obpcreator import generateHeatFile as gHF
 
-
-def generatHeatFile(name,power,folder_path):
-    save_file = os.path.join(folder_path,name)
-        with open(save_file, "wb") as f:
-            f.write(file)
-    pass
 
 def generate_build(build, folder_path, obf_structure=True):    
     if obf_structure :
@@ -24,7 +19,11 @@ def generate_build(build, folder_path, obf_structure=True):
         old_folder_path = Path(folder_path)
         generate_other_files(folder_path)
         folder_path += "/obp/"
-        
+        gHF.createHeatFile("start_heat.obp",build.pre_heat.beam_power,folder_path)
+        gHF.createHeatFile("pre_heat.obp",build.pre_heat.beam_power,folder_path)
+        gHF.createHeatFile("post_heat.obp",build.post_heat.beam_power,folder_path)
+
+
     max_layers = get_max_layers(build)
     build_infill = []
     for part in build.parts:
@@ -45,10 +44,7 @@ def generate_build(build, folder_path, obf_structure=True):
         output_file = folder_path + f"layer{i}.obp"
         obp.write_obp(layer_obp_elements,output_file)
     generate_build_file(build, folder_path + r"build_file.yml")
-    for power,name in [(build.start_heat.beam_power,r"start_heat.obp"),
-                      (build.pre_heat.beam_power,r"pre_heat.obp"),
-                      (build.post_heat.beam_power,r"post_heat.obp")]:
-        generatHeatFile(name,power,folder_path)   
+    
 
     if obf_structure:
         output_dir = os.path.dirname(old_folder_path)
@@ -76,7 +72,7 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
         obp_objects.insert(0, obp.SyncPoint("BSEGain", True, 0))
         obp_objects.append(obp.SyncPoint("BseImage", False, 0))
     
-    obp_objects.insert(0,obp.SyncPoint("ExternalSync",False,0)
+    obp_objects.insert(0,obp.SyncPoint("ExternalSync",False,0))
     return obp_objects
 
 def generate_build_file(build, path):
@@ -84,15 +80,15 @@ def generate_build_file(build, path):
     lines_to_write = []
     lines_to_write.append(f"build:")
     lines_to_write.append(f"  start_heat:")
-    lines_to_write.append(f"    file: {build.start_heat.file}")
+    lines_to_write.append(f"    file: start_heat.obp")
     lines_to_write.append(f"    temp_sensor: {build.start_heat.temp_sensor}")
     lines_to_write.append(f"    target_temperature: {build.start_heat.target_temperature}")
     lines_to_write.append(f"    timeout: {build.start_heat.timeout}")
     lines_to_write.append(f"  preheat:")
-    lines_to_write.append(f"    file: {build.pre_heat.file}")
+    lines_to_write.append(f"    file: pre_heat.obp")
     lines_to_write.append(f"    repetitions: {build.pre_heat.repetitions}")
     lines_to_write.append(f"  postheat:")
-    lines_to_write.append(f"    file: {build.post_heat.file}")
+    lines_to_write.append(f"    file: post_heat.obp")
     lines_to_write.append(f"    repetitions: {build.post_heat.repetitions}")
     lines_to_write.append(f"  build:")
     lines_to_write.append(f"    layers: {nmb_of_layers}")

@@ -118,7 +118,7 @@ class Part(BaseModel):
     point_geometry: PointGeometry
     infill_setting: Infill = None
     contour_setting: Contour = None
-    contour_order: int = 0 #0=contours before infill, 1=contours after  infill, 2=both before and after infill
+    contour_order: int = 1 #0=contours before infill, 1=contours after  infill, 2=both before and after infill
 
 class StartHeat(BaseModel):
     temp_sensor: str = "Sensor1"

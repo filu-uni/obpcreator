@@ -110,7 +110,6 @@ class SimpleBuild(BaseModel):
             start_heat = data_model.StartHeat()
         else:
             start_heat = data_model.StartHeat(
-                    file = self.start_heat["file"]
                     temp_sensor = self.start_heat["temp_sensor"],
                     target_temperature = self.start_heat["target_temperature"],
                     timeout = self.start_heat["timeout"]
@@ -119,15 +118,13 @@ class SimpleBuild(BaseModel):
             pre_heat = data_model.PreHeat()
         else:
             pre_heat = data_model.PreHeat(
-                    file = self.start_heat["file"]
-                    beam_power = self.pre_heat["beam_power"]
+                    beam_power = self.pre_heat["beam_power"],
                     repetitions = self.pre_heat["repetitions"])
         if not self.post_heat:
             post_heat = data_model.PostHeat()
         else:
             post_heat = data_model.PostHeat(
-                    file = self.start_heat["file"]
-                    beam_power = self.post_heat["beam_power"]
+                    beam_power = self.post_heat["beam_power"],
                     repetitions = self.post_heat["repetitions"])
         if not self.layerfeed:
             layerfeed = data_model.Layerfeed()
@@ -146,9 +143,9 @@ class SimpleBuild(BaseModel):
         build = data_model.Build(
             parts = parts,
             layer_height = self.layer_height, #mm
-            start_heat = start_heat,
-            pre_heat = pre_heat,
-            post_heat = post_heat,
+            start_heat = self.start_heat,
+            pre_heat = self.pre_heat,
+            post_heat = self.post_heat,
             layerfeed = layerfeed,
             back_scatter = bse,
             back_scatter_melting = self.bse_melt,
