@@ -49,7 +49,7 @@ def generate_build(build, folder_path, obf_structure=True):
             save_file = os.path.join(folder_path,name)
             with open(save_file, "wb") as f:
                 f.write(file)
-    after_layer_list =list(zip(build.after_layer.content,build.after_layer.files))
+    after_layer_list = list(zip(build.after_layer.content,build.after_layer.files))
     after_layer_list.reverse()
     for file,name in after_layer_list:
         if file is not None:
@@ -105,10 +105,14 @@ def generate_build_file(build, path):
     lines_to_write.append(f"    files:")
     for i in range(nmb_of_layers):
         obp_files = []
+        obp_files.append("HS_Delay_0W_down_idle.obp")
+        obp_files.append("ProHeatUpHome.obp")
+
         if build.before_layer.files:
             for file in build.before_layer.files:
                 obp_files.append(file)
         obp_files.append(f"layer{i}.obp")
+        obp_files.append("HS_Delay_0W_down_idle.obp")
         if build.after_layer.files:
             for file in build.after_layer.files:
                 obp_files.append(file)
