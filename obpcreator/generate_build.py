@@ -112,7 +112,6 @@ def generate_build_file(build, path):
             for file in build.before_layer.files:
                 obp_files.append(file)
         obp_files.append(f"layer{i}.obp")
-        obp_files.append("HS_Delay_0W_down_idle.obp")
         if build.after_layer.files:
             for file in build.after_layer.files:
                 obp_files.append(file)
