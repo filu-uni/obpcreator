@@ -67,8 +67,8 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
     contour_order = contour_part.contour_order
     #0=contours before infill, 1=contours after  infill, 2=both before and after infill
     obp_objects = []
-    #Generate contours
     contour_objects = []
+    
     if contour_part.contour_setting is not None:
         for contour in range(contour_part.contour_setting.numb_of_layers):
             contour_objects = generate_contour(contour_part, layer)
@@ -76,9 +76,10 @@ def generate_part_layer(contour_part, infill_part, layer, back_scatter_melt=Fals
         obp_objects.extend(contour_objects)
 
     obp_objects.extend(generate_infill(infill_part, layer))
-
-    if contour_order == 1 or contour_order == 2:
+    #Generate contours
+    if contour_order == 1:
         obp_objects.extend(contour_objects)
+
     if back_scatter_melt:
         obp_objects.insert(0, obp.SyncPoint("BseImage", True, 0))
         obp_objects.insert(0, obp.SyncPoint("BSEGain", True, 0))
