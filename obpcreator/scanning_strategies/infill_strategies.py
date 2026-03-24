@@ -190,6 +190,37 @@ def point_random(part, layer):
         obp_elements.append(obp.TimedPoints([a], [scan_settings.dwell_time], bp))
     return obp_elements
 
+def point_random_stack(part, layer):
+    coord_matrix, keep_matrix = part.point_geometry.get_layer(layer)
+    scan_settings = part.infill_setting.beam_settings
+    selected_values = []
+    if layer % 2 != 0: #every other layer
+        # Find the coordinates where keep_matrix is 1
+        coords = np.argwhere(keep_matrix == 1)
+        # Determine the bounding box
+        y_min, x_min = coords.min(axis=0)
+        y_max, x_max = coords.max(axis=0)
+
+        # Crop both matrices to the shape of the ones
+        keep_matrix = keep_matrix[y_min:y_max, x_min:x_max]
+        coord_matrix = coord_matrix[y_min:y_max, x_min:x_max]
+
+        # Apply your physical shift (0.5 * spot size)
+        shift = (scan_settings.spot_size * 0.001 / 2) + 1j * (scan_settings.spot_size * 0.001 / 2)
+
+        # Extract values where keep_matrix is 1 (within the new cropped shape)
+        selected_values = coord_matrix[keep_matrix == 1]
+        selected_values += shift
+    else:
+        selected_values = coord_matrix[keep_matrix == 1]
+    np.random.shuffle(selected_values)
+    obp_elements = []
+    bp = obp.Beamparameters(scan_settings.spot_size, scan_settings.beam_power)
+    for point in selected_values:
+        a = obp.Point(point.real*1000, point.imag*1000)
+        obp_elements.append(obp.TimedPoints([a], [scan_settings.dwell_time], bp))
+    return obp_elements
+
 # distribution with a decent distance between each point
 # further reading: https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
 def point_quasi_random(part, layer):
