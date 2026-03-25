@@ -2,6 +2,7 @@
 import numpy as np
 import obplib as obp
 import shapely
+from pathlib import Path
 
 def find_start_end_line_positions(arr):
     arr = np.array(arr)
@@ -221,20 +222,24 @@ def point_random_stack(part, layer):
         obp_elements.append(obp.TimedPoints([a], [scan_settings.dwell_time], bp))
     return obp_elements
 
-def point_blue_noise_mask(part, layer, mask_path='blue_noise_mask_512.npy'):
+def point_blue_noise_mask(part, layer):
     coord_matrix, keep_matrix = part.point_geometry.get_layer(layer)
     scan_settings = part.infill_setting.beam_settings
     
+    mask_path = Path(__file__).resolve().parent / "blue_noise_mask_512.npy"
     # Load the pre-calculated rank mask
     mask = np.load(mask_path)
     mask_size = mask.shape[0]
     
     all_points = coord_matrix[keep_matrix == 1]
+    x, y = all_points.real, all_points.imag
     
-    # Mapping coordinates to the mask
+    # Mapping coordinates to the mask lacally
     # We use a scale factor to control the 'granularity' of the noise
     # Setting scale to the part's bounding box makes the noise 'global'
-    x, y = all_points.real, all_points.imag
+    # LOCAL MAPPING (Pattern stays same if part moves)
+    x = x - np.min(x)
+    y = y - np.min(y)
     
     # Tiling logic: map real-world mm to mask pixels
     # This ensures the blue noise pattern is consistent across all layers

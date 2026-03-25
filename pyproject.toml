@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "obpcreator"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
     { name = "Anton Wiberg", email = "wiberg.anton@gmail.com" },
 	{name = "Finn Lütjens", email = "finn.luetjens@uni-wuppertal.de"}
@@ -43,4 +43,4 @@ include-package-data = true
 [tool.setuptools.package-data]
 # Adjust this to match your actual package structure
 "obpcreator.obf.helpers" = ["*.json", "*.lua", "*.py","*.obp"]
-
+"obpcreator.scanning_strategies" = ["*.npy"]
