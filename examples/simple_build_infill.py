@@ -2,6 +2,8 @@ from obpcreator.simple_input import SimpleBuild
 import pyvista as pv
 import os
 
+
+
 cube1 = pv.Cube(center=(15,-15,5),x_length=10,y_length=10,z_length=10)
 cube2 = pv.Cube(center=(15,0,5),x_length=10,y_length=10,z_length=10)
 cube3 = pv.Cube(center=(15,15,5),x_length=10,y_length=10,z_length=10)
@@ -18,7 +20,7 @@ build = SimpleBuild(
     beam_power = [660],
     scan_speed = [2031000],
     dwell_time = [515000],
-    infill_strategy = ["point_random_stack"], #["line_concentric", "line_concentric", "line_spiral", "line_spiral", "line_snake", "point_random", "point_quasi_random"],
+    infill_strategy = ["point_blue_noise_mask"], #["line_concentric", "line_concentric", "line_spiral", "line_spiral", "line_snake", "point_random", "point_quasi_random"],
     infill_settings = [{'direction': 'inward'}, {'direction': 'outward'},{'direction': 'inward'}, {'direction': 'outward'}, {},{},{}],
     infill_point_distance = [2],
     layer_height = 0.4,

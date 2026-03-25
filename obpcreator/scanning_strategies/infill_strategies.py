@@ -221,6 +221,45 @@ def point_random_stack(part, layer):
         obp_elements.append(obp.TimedPoints([a], [scan_settings.dwell_time], bp))
     return obp_elements
 
+def point_blue_noise_mask(part, layer, mask_path='blue_noise_mask_512.npy'):
+    coord_matrix, keep_matrix = part.point_geometry.get_layer(layer)
+    scan_settings = part.infill_setting.beam_settings
+    
+    # Load the pre-calculated rank mask
+    mask = np.load(mask_path)
+    mask_size = mask.shape[0]
+    
+    all_points = coord_matrix[keep_matrix == 1]
+    
+    # Mapping coordinates to the mask
+    # We use a scale factor to control the 'granularity' of the noise
+    # Setting scale to the part's bounding box makes the noise 'global'
+    x, y = all_points.real, all_points.imag
+    
+    # Tiling logic: map real-world mm to mask pixels
+    # This ensures the blue noise pattern is consistent across all layers
+    pixel_spacing = scan_settings.spot_size * 0.001 # mm per mask pixel
+    
+    # Add a shift based on the layer number to break up vertical patterns
+    # zero for now for testing
+    shift = 0#(layer * 131) % mask_size 
+    u = (x / pixel_spacing + shift).astype(int) % mask_size
+    v = (y / pixel_spacing + shift).astype(int) % mask_size
+    
+    # Assign ranks and sort
+    ranks = mask[u, v]
+    sorted_points = all_points[np.argsort(ranks)]
+    
+    # Build OBP
+    obp_elements = []
+    bp = obp.Beamparameters(scan_settings.spot_size, scan_settings.beam_power)
+    for p in sorted_points:
+        a = obp.Point(p.real * 1000, p.imag * 1000)
+        obp_elements.append(obp.TimedPoints([a], [scan_settings.dwell_time], bp))
+        
+    return obp_elements
+
+
 # distribution with a decent distance between each point
 # further reading: https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
 def point_quasi_random(part, layer):
